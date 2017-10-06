@@ -1,0 +1,19 @@
+.xcentered {
+  display: block;
+  margin: auto;
+}
+
+#game {
+  width: 562px;
+  height: 562px;
+  border: 1px solid red;
+}
+
+.square {
+  border: 0.5px solid purple;
+}
+
+.snake-head {
+  background-color: maroon;
+  border-radius: 50%;
+}
