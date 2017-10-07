@@ -1,32 +1,108 @@
 var model = {};
 var view = {};
 var handlers = {};
+var tickRate = 500;
+var isGameOver = false;
+var timer;
 
 model.calcDims = function () {
   return $('#game').width() / 40;
 };
 
-model.snake = function () {
-  var snake = { snake: $('snake-head') };
+model.snake = {
+  x: 20,
+  y: 19,
+  direction: 'r'
 };
 
-view.renderGame = function () {
+model.isCollided = function () {
+  var xBounds = model.snake.x < 1 || model.snake.x > 40;
+  var yBounds = model.snake.y < 1 || model.snake.y > 40;
+  if (xBounds || yBounds) {
+    return true;
+  }
+  return false;
+};
+
+model.tick = function () {
+  if (model.snake.direction === 'r') {
+    model.snake.x += 1;
+  } else if (model.snake.direction === 'l') {
+    model.snake.x -= 1;
+  } else if (model.snake.direction === 'u') {
+    model.snake.y += 1;
+  } else if (model.snake.direction === 'd') {
+    model.snake.y -= 1;
+  }
+
+  if (model.isCollided()) {
+    isGameOver = true;
+  }
+  view.renderGame();
+  view.drawSnake(model.snake.x + '_' + model.snake.y);
+};
+
+view.renderGrid = function () {
   var game = $('#game');
   var x;
   var y;
-  var square;
+  var cell;
 
-  for (x = 0; x < 40; x += 1) {
-    for (y = 0; y < 40; y += 1) {
-      square = $('<div class="square"></div>');
-      square.width(model.calcDims());
-      square.height(square.width());
-      game.append(square);
-      if (x === 18 && y === 19) {
-        square.addClass('snake-head');
-      }
+  for (y = 1; y <= 40; y += 1) {
+    for (x = 1; x <= 40; x += 1) {
+      cell = $('<div class="cell"></div>');
+      cell.width(model.calcDims());
+      cell.height(cell.width());
+      cell.attr('id', x + '_' + y);
+      game.append(cell);
     }
   }
 };
 
-view.renderGame();
+view.drawSnake = function (pos) {
+  if ($('.cell').hasClass('snake-head')) {
+    $('.cell').removeClass('snake-head');
+  }
+  $('#' + pos).addClass('snake-head');
+};
+
+view.drawGameOver = function () {
+  $('.title').html('Game Over!');
+  if (!isGameOver) {
+    $('.title').html('Hello Snake');
+  }
+};
+
+view.renderGame = function () {
+  if (isGameOver) {
+    view.drawGameOver();
+    clearInterval(timer);
+  } else {
+    view.drawSnake('20_19');
+  }
+};
+
+view.keysListener = function () {
+  var changeDir = function (event) {
+    var leftDir = event.which === 37 || event.keyCode === 37;
+    var downDir = event.which === 38 || event.keyCode === 38;
+    var rightDir = event.which === 39 || event.keyCode === 39;
+    var upDir = event.which === 40 || event.keyCode === 40;
+    if (leftDir) {
+      model.snake.direction = 'l';
+    } else if (upDir) {
+      model.snake.direction = 'u';
+    } else if (rightDir) {
+      model.snake.direction = 'r';
+    } else if (downDir) {
+      model.snake.direction = 'd';
+    }
+  };
+  $(document).on('keypress', changeDir);
+};
+
+$(document).ready(function () {
+  view.renderGrid();
+  view.keysListener();
+  timer = setInterval(model.tick, tickRate);
+});
