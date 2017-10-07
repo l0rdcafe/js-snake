@@ -9,14 +9,15 @@ model.calcDims = function () {
 };
 
 model.snake = {
-  x: 20,
-  y: 19,
+  cellsCoords: [[20, 19], [19, 19], [18, 19]],
   direction: 'r'
 };
 
 model.isCollided = function () {
-  var outOfxBounds = model.snake.x < 1 || model.snake.x > 40;
-  var outOfyBounds = model.snake.y < 1 || model.snake.y > 40;
+  var xHead = model.snake.cellsCoords[0][0];
+  var yHead = model.snake.cellsCoords[0][1];
+  var outOfxBounds = xHead < 1 || xHead > 40;
+  var outOfyBounds = yHead < 1 || yHead > 40;
   if (outOfxBounds || outOfyBounds) {
     return true;
   }
@@ -25,21 +26,25 @@ model.isCollided = function () {
 
 model.tick = function () {
   var snakeDir = model.snake.direction;
+  var xHead = model.snake.cellsCoords[0][0];
+  var yHead = model.snake.cellsCoords[0][1];
   if (snakeDir === 'r') {
-    model.snake.x += 1;
+    model.snake.cellsCoords.unshift([(xHead + 1), yHead]);
   } else if (snakeDir === 'l') {
-    model.snake.x -= 1;
+    model.snake.cellsCoords.unshift([(xHead - 1), yHead]);
   } else if (snakeDir === 'u') {
-    model.snake.y += 1;
+    model.snake.cellsCoords.unshift([xHead, (yHead + 1)]);
   } else if (snakeDir === 'd') {
-    model.snake.y -= 1;
+    model.snake.cellsCoords.unshift([xHead, (yHead - 1)]);
   }
+  model.snake.cellsCoords.pop();
 
   if (model.isCollided()) {
     isGameOver = true;
   }
+  view.drawSnakeHead(model.snake.cellsCoords[0][0] + '_' + model.snake.cellsCoords[0][1]);
+  view.drawSnakeBody(model.snake.cellsCoords[1][0] + '_' + model.snake.cellsCoords[1][1], model.snake.cellsCoords[2][0] + '_' + model.snake.cellsCoords[2][1]);
   view.renderGame();
-  view.drawSnake(model.snake.x + '_' + model.snake.y);
 };
 
 view.renderGrid = function () {
@@ -59,11 +64,19 @@ view.renderGrid = function () {
   }
 };
 
-view.drawSnake = function (pos) {
+view.drawSnakeHead = function (pos) {
   if ($('.cell').hasClass('snake-head')) {
     $('.cell').removeClass('snake-head');
   }
   $('#' + pos).addClass('snake-head');
+};
+
+view.drawSnakeBody = function (pos1, pos2) {
+  if ($('.cell').hasClass('snake-body')) {
+    $('.cell').removeClass('snake-body');
+  }
+  $('#' + pos1).addClass('snake-body');
+  $('#' + pos2).addClass('snake-body');
 };
 
 view.drawGameOver = function () {
@@ -74,8 +87,6 @@ view.renderGame = function () {
   if (isGameOver) {
     view.drawGameOver();
     clearInterval(timer);
-  } else {
-    view.drawSnake('20_19');
   }
 };
 
