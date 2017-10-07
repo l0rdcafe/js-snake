@@ -1,6 +1,5 @@
 var model = {};
 var view = {};
-var handlers = {};
 var tickRate = 500;
 var isGameOver = false;
 var timer;
@@ -16,22 +15,23 @@ model.snake = {
 };
 
 model.isCollided = function () {
-  var xBounds = model.snake.x < 1 || model.snake.x > 40;
-  var yBounds = model.snake.y < 1 || model.snake.y > 40;
-  if (xBounds || yBounds) {
+  var outOfxBounds = model.snake.x < 1 || model.snake.x > 40;
+  var outOfyBounds = model.snake.y < 1 || model.snake.y > 40;
+  if (outOfxBounds || outOfyBounds) {
     return true;
   }
   return false;
 };
 
 model.tick = function () {
-  if (model.snake.direction === 'r') {
+  var snakeDir = model.snake.direction;
+  if (snakeDir === 'r') {
     model.snake.x += 1;
-  } else if (model.snake.direction === 'l') {
+  } else if (snakeDir === 'l') {
     model.snake.x -= 1;
-  } else if (model.snake.direction === 'u') {
+  } else if (snakeDir === 'u') {
     model.snake.y += 1;
-  } else if (model.snake.direction === 'd') {
+  } else if (snakeDir === 'd') {
     model.snake.y -= 1;
   }
 
@@ -68,9 +68,6 @@ view.drawSnake = function (pos) {
 
 view.drawGameOver = function () {
   $('.title').html('Game Over!');
-  if (!isGameOver) {
-    $('.title').html('Hello Snake');
-  }
 };
 
 view.renderGame = function () {
