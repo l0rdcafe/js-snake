@@ -24,6 +24,17 @@ model.food = {
   eaten: false
 };
 
+model.newGame = function () {
+  isGameOver = false;
+  tickRate = 500;
+  model.snake.cellsCoords = [[20, 19], [19, 19], [18, 19]];
+  model.snake.direction = 'r';
+  model.snake.score = 0;
+  model.food.x = model.randomPos();
+  model.food.y = model.randomPos();
+  timer = setInterval(model.tick, tickRate);
+};
+
 model.ateItself = function () {
   var cellDict = {};
   var dictLength;
@@ -87,10 +98,16 @@ model.tick = function () {
     isGameOver = true;
   }
 
+  view.drawGame();
+};
+
+view.drawGame = function () {
   view.drawSnakeHead(model.snake.cellsCoords[0][0] + '_' + model.snake.cellsCoords[0][1]);
   view.drawSnakeBody(model.snake.cellsCoords);
   view.drawFood();
+  view.drawHeader();
   view.drawScore();
+  view.removeBtn();
   view.renderGame();
 };
 
@@ -135,15 +152,20 @@ view.drawFood = function () {
   $('#' + model.food.x + '_' + model.food.y).addClass('food');
 };
 
-view.drawGameOver = function () {
-  $('.title').html('Game Over!');
+view.drawHeader = function () {
+  if (isGameOver) {
+    $('.title').html('Game Over!');
+  } else {
+    $('.title').html('Hello Snake');
+  }
 };
 
 view.renderGame = function () {
   if (isGameOver) {
-    view.drawGameOver();
     clearInterval(timer);
-    view.drawNewGameBtn();
+    view.drawHeader();
+    view.drawBtn();
+    view.clickListener();
   }
 };
 
@@ -151,8 +173,12 @@ view.drawScore = function () {
   $('.subtitle').html('Score: ' + model.snake.score);
 };
 
-view.drawNewGameBtn = function () {
-  $('.section').append($('<button class="button xcentered is-primary">New Game</button>'));
+view.drawBtn = function () {
+  $('.section').append($('<button id="btn" class="button xcentered is-primary">New Game</button>'));
+};
+
+view.removeBtn = function () {
+  $('#btn').remove();
 };
 
 view.keysListener = function () {
@@ -175,19 +201,15 @@ view.keysListener = function () {
 };
 
 view.clickListener = function () {
-  var btnClicked = function (event) {
-    if (event.target === 'button') {
-      isGameOver = false;
-      tickRate = 500;
-      timer = setInterval(model.tick, tickRate);
-    }
+  var btnClicked = function () {
+    model.newGame();
+    view.drawGame();
   };
-  $('.button').on('click', btnClicked);
+  $('#btn').on('click', btnClicked);
 };
 
 $(document).ready(function () {
   view.renderGrid();
   view.keysListener();
-  view.clickListener();
   timer = setInterval(model.tick, tickRate);
 });
