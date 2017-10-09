@@ -1,6 +1,6 @@
 var model = {};
 var view = {};
-var tickRate = 500;
+var tickRate = 250;
 var isGameOver = false;
 var timer;
 
@@ -10,7 +10,29 @@ model.calcDims = function () {
 
 model.snake = {
   cellsCoords: [[20, 19], [19, 19], [18, 19]],
-  direction: 'r'
+  direction: 'r',
+  score: 0
+};
+
+model.randomPos = function () {
+  return Math.floor((Math.random() * 40) + 1);
+};
+
+model.food = {
+  x: model.randomPos(),
+  y: model.randomPos(),
+  eaten: false
+};
+
+model.ateItself = function () {
+  var cellDict = {};
+  var dictLength;
+  var arrLength = model.snake.cellsCoords.length;
+  model.snake.cellsCoords.forEach(function (c) {
+    cellDict[c] = 1;
+  });
+  dictLength = Object.keys(cellDict).length;
+  return dictLength !== arrLength;
 };
 
 model.isCollided = function () {
@@ -18,7 +40,19 @@ model.isCollided = function () {
   var yHead = model.snake.cellsCoords[0][1];
   var outOfxBounds = xHead < 1 || xHead > 40;
   var outOfyBounds = yHead < 1 || yHead > 40;
-  if (outOfxBounds || outOfyBounds) {
+  if (outOfxBounds || outOfyBounds || model.ateItself()) {
+    return true;
+  }
+  return false;
+};
+
+model.ateFood = function () {
+  var xHead = model.snake.cellsCoords[0][0];
+  var yHead = model.snake.cellsCoords[0][1];
+
+  if (xHead === model.food.x && yHead === model.food.y) {
+    model.food.eaten = true;
+    model.snake.score += 10;
     return true;
   }
   return false;
@@ -37,13 +71,21 @@ model.tick = function () {
   } else if (snakeDir === 'd') {
     model.snake.cellsCoords.unshift([xHead, (yHead - 1)]);
   }
-  model.snake.cellsCoords.pop();
+
+  if (model.ateFood()) {
+    model.food.eaten = false;
+    view.drawFood();
+  } else {
+    model.snake.cellsCoords.pop();
+  }
 
   if (model.isCollided()) {
     isGameOver = true;
   }
+
   view.drawSnakeHead(model.snake.cellsCoords[0][0] + '_' + model.snake.cellsCoords[0][1]);
-  view.drawSnakeBody(model.snake.cellsCoords[1][0] + '_' + model.snake.cellsCoords[1][1], model.snake.cellsCoords[2][0] + '_' + model.snake.cellsCoords[2][1]);
+  view.drawSnakeBody(model.snake.cellsCoords);
+  view.drawFood();
   view.renderGame();
 };
 
@@ -71,12 +113,21 @@ view.drawSnakeHead = function (pos) {
   $('#' + pos).addClass('snake-head');
 };
 
-view.drawSnakeBody = function (pos1, pos2) {
+view.drawSnakeBody = function (cellArr) {
+  var i;
   if ($('.cell').hasClass('snake-body')) {
     $('.cell').removeClass('snake-body');
   }
-  $('#' + pos1).addClass('snake-body');
-  $('#' + pos2).addClass('snake-body');
+  for (i = 1; i < cellArr.length; i += 1) {
+    $('#' + cellArr[i][0] + '_' + cellArr[i][1]).addClass('snake-body');
+  }
+};
+
+view.drawFood = function () {
+  if ($('.cell').hasClass('food')) {
+    $('.cell').removeClass('food');
+  }
+  $('#' + model.food.x + '_' + model.food.y).addClass('food');
 };
 
 view.drawGameOver = function () {
