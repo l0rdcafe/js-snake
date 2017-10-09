@@ -1,21 +1,33 @@
 var model = {};
 var view = {};
-var tickRate = 500;
+var tickRate;
 var isGameOver = false;
 var timer;
 
+model.defaults = {
+  defaultPos: function () { return [[20, 19], [19, 19], [18, 19]]; },
+  dims: 40,
+  defaultTickRate: 500,
+  scoreIncrement: 10,
+  tickDecrement: 50
+};
+
+tickRate = model.defaults.defaultTickRate;
+
 model.calcDims = function () {
-  return $('#game').width() / 40;
+  var dims = model.defaults.dims;
+  return $('#game').width() / dims;
 };
 
 model.snake = {
-  cellsCoords: [[20, 19], [19, 19], [18, 19]],
+  cellsCoords: model.defaults.defaultPos(),
   direction: 'r',
   score: 0
 };
 
 model.randomPos = function () {
-  return Math.floor((Math.random() * 40) + 1);
+  var dims = model.defaults.dims;
+  return Math.floor((Math.random() * dims) + 1);
 };
 
 model.food = {
@@ -26,8 +38,8 @@ model.food = {
 
 model.newGame = function () {
   isGameOver = false;
-  tickRate = 500;
-  model.snake.cellsCoords = [[20, 19], [19, 19], [18, 19]];
+  tickRate = model.defaults.defaultTickRate;
+  model.snake.cellsCoords = model.defaults.defaultPos();
   model.snake.direction = 'r';
   model.snake.score = 0;
   model.food.x = model.randomPos();
@@ -49,8 +61,8 @@ model.ateItself = function () {
 model.isCollided = function () {
   var xHead = model.snake.cellsCoords[0][0];
   var yHead = model.snake.cellsCoords[0][1];
-  var outOfxBounds = xHead < 1 || xHead > 40;
-  var outOfyBounds = yHead < 1 || yHead > 40;
+  var outOfxBounds = xHead < 1 || xHead > model.defaults.dims;
+  var outOfyBounds = yHead < 1 || yHead > model.defaults.dims;
   if (outOfxBounds || outOfyBounds || model.ateItself()) {
     return true;
   }
@@ -60,13 +72,15 @@ model.isCollided = function () {
 model.ateFood = function () {
   var xHead = model.snake.cellsCoords[0][0];
   var yHead = model.snake.cellsCoords[0][1];
+  var tickDec = model.defaults.tickDecrement;
+  var scoreInc = model.defaults.scoreIncrement;
 
   if (xHead === model.food.x && yHead === model.food.y) {
     model.food.eaten = true;
-    model.snake.score += 10;
+    model.snake.score += scoreInc;
     model.food.x = model.randomPos();
     model.food.y = model.randomPos();
-    tickRate >= 50 ? tickRate -= 50 : tickRate = 50;
+    tickRate >= tickDec ? tickRate -= tickDec : tickRate = tickDec;
     return true;
   }
   return false;
@@ -116,16 +130,21 @@ view.renderGrid = function () {
   var x;
   var y;
   var cell;
+  var dims = model.defaults.dims;
+  var cells = [];
 
-  for (y = 1; y <= 40; y += 1) {
-    for (x = 1; x <= 40; x += 1) {
+  for (y = 1; y <= dims; y += 1) {
+    for (x = 1; x <= dims; x += 1) {
       cell = $('<div class="cell"></div>');
       cell.width(model.calcDims());
       cell.height(cell.width());
       cell.attr('id', x + '_' + y);
-      game.append(cell);
+      cells.push(cell);
     }
   }
+  cells.forEach(function (c) {
+    game.append(c);
+  });
 };
 
 view.drawSnakeHead = function (pos) {
