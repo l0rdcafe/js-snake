@@ -4,26 +4,27 @@
 }
 
 #game {
-  width: 562px;
-  height: 562px;
-  border: 1px solid red;
-}
-
-.cell {
-  border: 0.5px solid purple;
+  width: 350px;
+  height: 350px;
+  background-color: black;
+  border-radius: 4px;
 }
 
 .snake-head {
-  background-color: maroon;
-  border-radius: 50%;
+  background-color: white;
+  border-radius: 33.33333%;
 }
 
 .snake-body {
+  background-color: white;
+  border-radius: 2px;
+}
+
+.food {
   background-color: red;
   border-radius: 25%;
 }
 
-.food {
-  background-color: goldenrod;
-  border-radius: 17.5%;
+.button {
+  margin-top: 2rem;
 }

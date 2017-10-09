@@ -1,6 +1,6 @@
 var model = {};
 var view = {};
-var tickRate = 250;
+var tickRate = 500;
 var isGameOver = false;
 var timer;
 
@@ -53,6 +53,9 @@ model.ateFood = function () {
   if (xHead === model.food.x && yHead === model.food.y) {
     model.food.eaten = true;
     model.snake.score += 10;
+    model.food.x = model.randomPos();
+    model.food.y = model.randomPos();
+    tickRate >= 50 ? tickRate -= 50 : tickRate = 50;
     return true;
   }
   return false;
@@ -74,7 +77,8 @@ model.tick = function () {
 
   if (model.ateFood()) {
     model.food.eaten = false;
-    view.drawFood();
+    clearInterval(timer);
+    timer = setInterval(model.tick, tickRate);
   } else {
     model.snake.cellsCoords.pop();
   }
@@ -86,6 +90,7 @@ model.tick = function () {
   view.drawSnakeHead(model.snake.cellsCoords[0][0] + '_' + model.snake.cellsCoords[0][1]);
   view.drawSnakeBody(model.snake.cellsCoords);
   view.drawFood();
+  view.drawScore();
   view.renderGame();
 };
 
@@ -138,7 +143,16 @@ view.renderGame = function () {
   if (isGameOver) {
     view.drawGameOver();
     clearInterval(timer);
+    view.drawNewGameBtn();
   }
+};
+
+view.drawScore = function () {
+  $('.subtitle').html('Score: ' + model.snake.score);
+};
+
+view.drawNewGameBtn = function () {
+  $('.section').append($('<button class="button xcentered is-primary">New Game</button>'));
 };
 
 view.keysListener = function () {
@@ -160,8 +174,20 @@ view.keysListener = function () {
   $(document).on('keypress', changeDir);
 };
 
+view.clickListener = function () {
+  var btnClicked = function (event) {
+    if (event.target === 'button') {
+      isGameOver = false;
+      tickRate = 500;
+      timer = setInterval(model.tick, tickRate);
+    }
+  };
+  $('.button').on('click', btnClicked);
+};
+
 $(document).ready(function () {
   view.renderGrid();
   view.keysListener();
+  view.clickListener();
   timer = setInterval(model.tick, tickRate);
 });
