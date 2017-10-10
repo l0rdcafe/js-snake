@@ -15,7 +15,7 @@ model.defaults = {
 tickRate = model.defaults.defaultTickRate;
 
 model.calcDims = function () {
-  var dims = model.defaults.dims;
+  var dims = this.defaults.dims;
   return $('#game').width() / dims;
 };
 
@@ -70,16 +70,16 @@ model.isCollided = function () {
 };
 
 model.ateFood = function () {
-  var xHead = model.snake.cellsCoords[0][0];
-  var yHead = model.snake.cellsCoords[0][1];
-  var tickDec = model.defaults.tickDecrement;
-  var scoreInc = model.defaults.scoreIncrement;
+  var xHead = this.snake.cellsCoords[0][0];
+  var yHead = this.snake.cellsCoords[0][1];
+  var tickDec = this.defaults.tickDecrement;
+  var scoreInc = this.defaults.scoreIncrement;
 
-  if (xHead === model.food.x && yHead === model.food.y) {
-    model.food.eaten = true;
-    model.snake.score += scoreInc;
-    model.food.x = model.randomPos();
-    model.food.y = model.randomPos();
+  if (xHead === this.food.x && yHead === this.food.y) {
+    this.food.eaten = true;
+    this.snake.score += scoreInc;
+    this.food.x = this.randomPos();
+    this.food.y = this.randomPos();
     tickRate >= tickDec ? tickRate -= tickDec : tickRate = tickDec;
     return true;
   }
@@ -116,13 +116,13 @@ model.tick = function () {
 };
 
 view.drawGame = function () {
-  view.drawSnakeHead(model.snake.cellsCoords[0][0] + '_' + model.snake.cellsCoords[0][1]);
-  view.drawSnakeBody(model.snake.cellsCoords);
-  view.drawFood();
-  view.drawHeader();
-  view.drawScore();
-  view.removeBtn();
-  view.renderGame();
+  this.drawSnakeHead(model.snake.cellsCoords[0][0] + '_' + model.snake.cellsCoords[0][1]);
+  this.drawSnakeBody(model.snake.cellsCoords);
+  this.drawFood();
+  this.drawHeader();
+  this.drawScore();
+  this.removeBtn();
+  this.renderGame();
 };
 
 view.renderGrid = function () {
@@ -131,7 +131,7 @@ view.renderGrid = function () {
   var y;
   var cell;
   var dims = model.defaults.dims;
-  var cells = [];
+  var cells = $(document.createDocumentFragment());
 
   for (y = 1; y <= dims; y += 1) {
     for (x = 1; x <= dims; x += 1) {
@@ -139,12 +139,10 @@ view.renderGrid = function () {
       cell.width(model.calcDims());
       cell.height(cell.width());
       cell.attr('id', x + '_' + y);
-      cells.push(cell);
+      cells.append(cell);
     }
   }
-  cells.forEach(function (c) {
-    game.append(c);
-  });
+  game.append(cells);
 };
 
 view.drawSnakeHead = function (pos) {
@@ -182,9 +180,9 @@ view.drawHeader = function () {
 view.renderGame = function () {
   if (isGameOver) {
     clearInterval(timer);
-    view.drawHeader();
-    view.drawBtn();
-    view.clickListener();
+    this.drawHeader();
+    this.drawBtn();
+    this.clickListener();
   }
 };
 
