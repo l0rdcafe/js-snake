@@ -14,11 +14,6 @@ model.defaults = {
 
 tickRate = model.defaults.defaultTickRate;
 
-model.calcDims = function () {
-  var dims = this.defaults.dims;
-  return $('#game').width() / dims;
-};
-
 model.snake = {
   cellsCoords: model.defaults.defaultPos(),
   direction: 'r',
@@ -126,23 +121,24 @@ view.drawGame = function () {
 };
 
 view.renderGrid = function () {
-  var game = $('#game');
+  var $game = $('#game');
   var x;
   var y;
   var cell;
   var dims = model.defaults.dims;
+  var cellLength = $game.width() / dims;
   var cells = $(document.createDocumentFragment());
 
   for (y = 1; y <= dims; y += 1) {
     for (x = 1; x <= dims; x += 1) {
       cell = $('<div class="cell"></div>');
-      cell.width(model.calcDims());
-      cell.height(cell.width());
+      cell.width(cellLength);
+      cell.height(cellLength);
       cell.attr('id', x + '_' + y);
       cells.append(cell);
     }
   }
-  game.append(cells);
+  $game.append(cells);
 };
 
 view.drawSnakeHead = function (pos) {
