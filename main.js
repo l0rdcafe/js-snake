@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 const model = {};
 const view = {};
 let tickRate;
@@ -45,13 +47,10 @@ model.newGame = function() {
 };
 
 model.ateItself = function() {
-  const cellDict = new Set();
+  const cellSet = new Set(model.snake.cellsCoords);
   const arrLength = model.snake.cellsCoords.length;
-  model.snake.cellsCoords.forEach(c => {
-    cellDict.add(c);
-  });
-  const dictLength = cellDict.size;
-  return dictLength !== arrLength;
+  const setLength = cellSet.size;
+  return setLength !== arrLength;
 };
 
 model.isCollided = function() {
@@ -76,7 +75,7 @@ model.ateFood = function() {
     this.snake.score += scoreInc;
     this.food.x = this.randomPos();
     this.food.y = this.randomPos();
-    const tickSpeed = tickRate >= tickDec ? (tickRate -= tickDec) : (tickRate = tickDec);
+    tickRate >= tickDec ? (tickRate -= tickDec) : (tickRate = tickDec);
     return true;
   }
   return false;
