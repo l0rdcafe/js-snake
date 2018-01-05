@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-expressions */
+/* eslint-disable no-debugger */
 
 const model = {};
 const view = {};
@@ -47,9 +48,12 @@ model.newGame = function() {
 };
 
 model.ateItself = function() {
-  const cellSet = new Set(model.snake.cellsCoords);
-  const arrLength = model.snake.cellsCoords.length;
+  const coords = model.snake.cellsCoords;
+  const cellSet = new Set(coords.map(arr => arr.toString()));
+
+  const arrLength = coords.length;
   const setLength = cellSet.size;
+
   return setLength !== arrLength;
 };
 
